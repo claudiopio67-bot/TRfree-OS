@@ -11,11 +11,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Docker
-        run: |
-          sudo apt update
-          sudo apt install -y docker.io
-
       - name: Build ISO inside Arch container
         run: |
           sudo docker run --rm --privileged \
