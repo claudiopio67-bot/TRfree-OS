@@ -1,11 +1,32 @@
-name: Test Workflow
+name: Build TRfree-OS ISO
 
 on:
   workflow_dispatch:
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Say Hello
-        run: echo "Workflow attivo!"
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install ArchISO
+        run: |
+          sudo apt update
+          sudo apt install -y archiso
+
+      - name: Copy Arch releng profile
+        run: |
+          mkdir archiso
+          cp -r /usr/share/archiso/configs/releng/* archiso/
+
+      - name: Build ISO
+        run: |
+          sudo mkarchiso -v archiso
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v3
+        with:
+          name: TRfree-OS
+          path: out/
