@@ -6,27 +6,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install ArchISO
+      - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y archiso
+          pacman -Sy --noconfirm archiso git
 
-      - name: Copy Arch releng profile
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy releng profile
         run: |
           mkdir archiso
           cp -r /usr/share/archiso/configs/releng/* archiso/
 
       - name: Build ISO
         run: |
-          sudo mkarchiso -v archiso
+          mkarchiso -v archiso
 
       - name: Upload ISO
-  uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: TRfree-OS
           path: out/
