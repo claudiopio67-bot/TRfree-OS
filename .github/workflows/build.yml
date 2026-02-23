@@ -6,25 +6,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: archlinux:latest
 
     steps:
-      - name: Install dependencies
-        run: |
-          pacman -Sy --noconfirm archiso git
-
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Copy releng profile
+      - name: Install Docker
         run: |
-          mkdir archiso
-          cp -r /usr/share/archiso/configs/releng/* archiso/
+          sudo apt update
+          sudo apt install -y docker.io
 
-      - name: Build ISO
+      - name: Build ISO inside Arch container
         run: |
-          mkarchiso -v archiso
+          sudo docker run --rm --privileged \
+            -v ${{ github.workspace }}:/workspace \
+            archlinux:latest \
+            /bin/bash -c "
+              pacman -Sy --noconfirm archlinux-keyring &&
+              pacman -Sy --noconfirm archiso git &&
+              cp -r /usr/share/archiso/configs/releng /workspace/archiso &&
+              cd /workspace &&
+              mkarchiso -v archiso
+            "
 
       - name: Upload ISO
         uses: actions/upload-artifact@v4
